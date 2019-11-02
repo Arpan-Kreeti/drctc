@@ -1,6 +1,7 @@
-# Drctc
+# DRCTC
 
-**TODO: Add description**
+To start the application go to its directory and enter `iex -S mix`
+This will start the Drctc server and you can now make requests to book,cancel and check seat status
 
 ## Installation
 
