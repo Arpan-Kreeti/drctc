@@ -15,32 +15,33 @@ defmodule Drctc.Server do
     GenServer.call(__MODULE__, {:cancel_seat, user, seat_no})
   end
 
-  def display_status(user \\ nil) do
-    send(__MODULE__, {:display_seat, user})
+  def display_status do
+    send(__MODULE__, :display_seat)
   end
 
   # SERVER
 
   def init(_) do
+    welcome()
     {:ok, Drctc.Seats.get()}
   end
 
-  def handle_call({:book_seat, user, seat_no}, _from,seats) do
+  def handle_call({:book_seat, user, seat_no}, _from, seats) do
     case book_seat(user, seat_no, seats) do
       {:ok, seats} -> {:reply, :ok, seats}
       {:error, reason} -> {:reply, {:error, reason}, seats}
     end
   end
 
-  def handle_call({:cancel_seat, user, seat_no},_from, seats) do
+  def handle_call({:cancel_seat, user, seat_no}, _from, seats) do
     case cancel_seat(user, seat_no, seats) do
       {:ok, seats} -> {:reply, :ok, seats}
       {:error, reason} -> {:reply, {:error, reason}, seats}
     end
   end
 
-  def handle_info({:display_seat, user}, seats) do
-    display_seat(seats, user)
+  def handle_info(:display_seat, seats) do
+    display_seat(seats)
     {:noreply, seats}
   end
 
@@ -50,19 +51,8 @@ defmodule Drctc.Server do
 
   # Buissness logic
 
-  defp display_seat(seats, user) do
-
-    IO.inspect seats
-
-    # seats
-    # |> Enum.with_index()
-    # |> Enum.each(fn {seat, index} ->
-    #   case seat do
-    #     nil -> IO.puts("#{index + 1}: _")
-    #     ^user -> IO.puts("#{index + 1}: #{user}")
-    #     _ -> IO.puts("#{index + 1}: X")
-    #   end
-    # end)
+  defp display_seat(seats) do
+    IO.inspect(seats)
   end
 
   defp book_seat(user, seat_no, seats) do
@@ -78,14 +68,39 @@ defmodule Drctc.Server do
     seat_no = seat_no - 1
 
     case Enum.at(seats, seat_no) do
-      nil ->
-        {:error, "Seat is not booked"}
+      nil -> raise "Seat is not booked"
 
       xuser ->
         case xuser do
           ^user -> {:ok, List.replace_at(seats, seat_no, nil)}
-          _ -> {:error, "Cannot cancel other user seat"}
+          _ -> raise "Cannot cancel other user's seat"
         end
     end
+  end
+
+  defp welcome do
+    IO.puts("
+Welcome to....
+
+DDDDDDDDDDDDD             RRRRRRRRRRRRRRRRR                CCCCCCCCCCCCC     TTTTTTTTTTTTTTTTTTTTTTT             CCCCCCCCCCCCC
+D::::::::::::DDD          R::::::::::::::::R            CCC::::::::::::C     T:::::::::::::::::::::T          CCC::::::::::::C
+D:::::::::::::::DD        R::::::RRRRRR:::::R         CC:::::::::::::::C     T:::::::::::::::::::::T        CC:::::::::::::::C
+DDD:::::DDDDD:::::D       RR:::::R     R:::::R       C:::::CCCCCCCC::::C     T:::::TT:::::::TT:::::T       C:::::CCCCCCCC::::C
+  D:::::D    D:::::D        R::::R     R:::::R      C:::::C       CCCCCC     TTTTTT  T:::::T  TTTTTT      C:::::C       CCCCCC
+  D:::::D     D:::::D       R::::R     R:::::R     C:::::C                           T:::::T             C:::::C
+  D:::::D     D:::::D       R::::RRRRRR:::::R      C:::::C                           T:::::T             C:::::C
+  D:::::D     D:::::D       R:::::::::::::RR       C:::::C                           T:::::T             C:::::C
+  D:::::D     D:::::D       R::::RRRRRR:::::R      C:::::C                           T:::::T             C:::::C
+  D:::::D     D:::::D       R::::R     R:::::R     C:::::C                           T:::::T             C:::::C
+  D:::::D     D:::::D       R::::R     R:::::R     C:::::C                           T:::::T             C:::::C
+  D:::::D    D:::::D        R::::R     R:::::R      C:::::C       CCCCCC             T:::::T              C:::::C       CCCCCC
+DDD:::::DDDDD:::::D       RR:::::R     R:::::R       C:::::CCCCCCCC::::C           TT:::::::TT             C:::::CCCCCCCC::::C
+D:::::::::::::::DD        R::::::R     R:::::R        CC:::::::::::::::C           T:::::::::T              CC:::::::::::::::C
+D::::::::::::DDD          R::::::R     R:::::R          CCC::::::::::::C           T:::::::::T                CCC::::::::::::C
+DDDDDDDDDDDDD             RRRRRRRR     RRRRRRR             CCCCCCCCCCCCC           TTTTTTTTTTT                   CCCCCCCCCCCCC
+
+
+Server running....
+")
   end
 end
