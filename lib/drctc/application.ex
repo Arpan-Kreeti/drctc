@@ -7,8 +7,8 @@ defmodule Drctc.Application do
 
   def start(_type, _args) do
     children = [
-     {Drctc.Seats, List.duplicate(nil,10)},
-     {Drctc.Server, nil}
+      {Drctc.Seats, Application.get_env(:drctc, :initial_seats)},
+      {Drctc.Server, nil}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

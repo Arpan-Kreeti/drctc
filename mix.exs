@@ -15,7 +15,8 @@ defmodule Drctc.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      mod: {Drctc.Application, []}
+      mod: {Drctc.Application, []},
+      env: [initial_seats: List.duplicate(nil, 10)]
     ]
   end
 

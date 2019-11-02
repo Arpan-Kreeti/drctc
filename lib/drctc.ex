@@ -68,7 +68,8 @@ defmodule Drctc.Server do
     seat_no = seat_no - 1
 
     case Enum.at(seats, seat_no) do
-      nil -> raise "Seat is not booked"
+      nil ->
+        raise "Seat is not booked"
 
       xuser ->
         case xuser do
